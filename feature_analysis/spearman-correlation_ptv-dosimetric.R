@@ -16,20 +16,18 @@ ptv <- comb[, c("survivalstat", 'DOSEMEAN.PTV',  'DOSEMAX.PTV',  'DOSEMIN.PTV', 
 ptv[] <- lapply(ptv, function(x) as.numeric(as.character(x)))
 ptv <- ptv %>% mutate_if(is.numeric, round, 0)
 
-sink("output/lungstereo_ptv_spearman-correlation-results.txt")
 ptv_cor <- cor(ptv)
-
-sink()
-
-
-sink("output/lungstereo_ptv_dropped-columns.txt")
+sink("output/lungstereo_ptv_spearman-correlation-results.txt")
 print(ptv_cor)
 sink()
 
 
 ptv_correlated_cutoff <- findCorrelation(ptv_cor, cutoff=0.75, names = TRUE)
+sink("output/lungstereo_hart_dropped-columns.txt")
 print(ptv_correlated_cutoff)
-#ptv_dropped = ptv[ , !(names(ptv) %in% ptv_correlated_cutoff)]
+sink()
+
+ptv_dropped = ptv[ , !(names(ptv) %in% ptv_correlated_cutoff)]
 
 png('output/lungestereo_ptv_spearman-all-pairspanels.png', width=3840, height=2160)
 pairs.panels(ptv_cor, method = "spearman")

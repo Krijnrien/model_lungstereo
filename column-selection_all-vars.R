@@ -32,4 +32,4 @@ data = data[ , !(names(data) %in% drop)]
 data_class = data$survivalstat # place outcome in separate variable
 data$survivalstat = NULL #remove outcome from data
 data_class = revalue(data_class, c('0' = 'nonEvent','1' = 'event')) # relabel outcome as event and nonEvent: 0:dead before 2yr --> nonEvent, 1:alive after 2yr --> event
-data <- list(data,data_class) 
+data <- list(data,data_class)
