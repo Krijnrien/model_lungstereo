@@ -1,7 +1,4 @@
-if(!exists("comb")){
-  cat("No comb object found in memory: running prepare.r script!")
-  source("clean.r")
-}
+source("clean.r")
 
 cat(sprintf("Total patients nr: %s\n", sum(length(unique(comb$MRN)), na.rm = TRUE)))
 

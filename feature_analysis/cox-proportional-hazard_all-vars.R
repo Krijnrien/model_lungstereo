@@ -11,17 +11,17 @@ source("factor-grouping.R")
 
 
 
-surv_object <- Surv(comb$diff_in_days, comb$survivalstat)
+surv_object <- Surv(data$diff_in_days, data$survivalstat)
 
 
 
-sink("output/correlation/cox/lungstereo_castor-rth_univariate-cox-regression_output-table.csv")
+sink("output/lungstereo_castor-rth_univariate-cox-regression_output-table.csv")
 cat("var,Rsquare,Likelihood ratio test,Wald test,Score (logrank) test\n")
 
 #univariate cox regression on grouping fev < 70 and fev > 70
-fev1_group_cox <- coxph(surv_object ~ fev1_group, data = comb)
+fev1_group_cox <- coxph(surv_object ~ fev1_group, data = data)
 summary(fev1_group_cox)
-ggforest(fev1_group_cox, data = comb)
+ggforest(fev1_group_cox, data = data)
 
 summcph <- summary(fev1_group_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
@@ -29,9 +29,9 @@ cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]],
 
 
 #univariate cox regression on fev numerical
-fev1_cox <- coxph(surv_object ~ FEV1, data = comb)
+fev1_cox <- coxph(surv_object ~ FEV1, data = data)
 summary(fev1_cox)
-ggforest(fev1_cox, data = comb)
+ggforest(fev1_cox, data = data)
 
 summcph <- summary(fev1_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
@@ -39,9 +39,9 @@ cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]],
 
 
 #univariate cox regression on WHO status
-who_cox <- coxph(surv_object ~ WHO, data = comb)
+who_cox <- coxph(surv_object ~ WHO, data = data)
 summary(who_cox)
-ggforest(who_cox, data = comb)
+ggforest(who_cox, data = data)
 
 summcph <- summary(who_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
@@ -49,17 +49,17 @@ cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]],
 
 
 #univariate cox regression on PA proven
-pa_cox <- coxph(surv_object ~ PAstat, data = comb)
+pa_cox <- coxph(surv_object ~ PAstat, data = data)
 summary(pa_cox)
-ggforest(pa_cox, data = comb)
+ggforest(pa_cox, data = data)
 
 summcph <- summary(pa_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
 
 #univariate cox regression on SBRT schedule
-schedule_cox <- coxph(surv_object ~ Schedule, data = comb)
+schedule_cox <- coxph(surv_object ~ Schedule, data = data)
 summary(schedule_cox)
-ggforest(schedule_cox, data = comb)
+ggforest(schedule_cox, data = data)
 
 summcph <- summary(schedule_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
@@ -67,9 +67,9 @@ cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]],
 
 
 #univariate cox regression on originstat (primary & metastasis)
-origin_cox <- coxph(surv_object ~ originstat, data = comb)
+origin_cox <- coxph(surv_object ~ originstat, data = data)
 summary(origin_cox)
-ggforest(origin_cox, data = comb)
+ggforest(origin_cox, data = data)
 
 summcph <- summary(origin_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
@@ -77,27 +77,27 @@ cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]],
 
 
 #univariate cox regression on T-stage
-ct_cox <- coxph(surv_object ~ cT_stat, data = comb)
+ct_cox <- coxph(surv_object ~ cT_stat, data = data)
 summary(ct_cox)
-ggforest(ct_cox, data = comb)
+ggforest(ct_cox, data = data)
 
 summcph <- summary(ct_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
 
 
 #univariate cox regression on cN
-cN_cox <- coxph(surv_object ~ cN_stat, data = comb)
+cN_cox <- coxph(surv_object ~ cN_stat, data = data)
 summary(cN_cox)
-ggforest(cN_cox, data = comb)
+ggforest(cN_cox, data = data)
 
 summcph <- summary(cN_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
 
 
 #univariate cox regression on cM
-cM_cox <- coxph(surv_object ~ cM_stat, data = comb)
+cM_cox <- coxph(surv_object ~ cM_stat, data = data)
 summary(cM_cox)
-ggforest(cM_cox, data = comb)
+ggforest(cM_cox, data = data)
 
 summcph <- summary(cM_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
@@ -105,27 +105,27 @@ cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]],
 
 
 #univariate cox regression on tumor size
-tumor_size_cox <- coxph(surv_object ~ size, data = comb)
+tumor_size_cox <- coxph(surv_object ~ size, data = data)
 summary(tumor_size_cox)
-ggforest(tumor_size_cox, data = comb)
+ggforest(tumor_size_cox, data = data)
 
 summcph <- summary(tumor_size_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
 
 
 #univariate cox regression on 'amount of target areas'
-amount_targets_cox <- coxph(surv_object ~ aantal_doelgebieden, data = comb)
+amount_targets_cox <- coxph(surv_object ~ aantal_doelgebieden, data = data)
 summary(amount_targets_cox)
-ggforest(amount_targets_cox, data = comb)
+ggforest(amount_targets_cox, data = data)
 
 summcph <- summary(amount_targets_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
 
 
 #univariate cox regression on gender
-gender_cox <- coxph(surv_object ~ sex, data = comb)
+gender_cox <- coxph(surv_object ~ sex, data = data)
 summary(gender_cox)
-ggforest(gender_cox, data = comb)
+ggforest(gender_cox, data = data)
 
 summcph <- summary(gender_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
@@ -133,9 +133,9 @@ cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]],
 
 
 #univariate cox regression on age
-agediag_cox <- coxph(surv_object ~ agediag, data = comb)
+agediag_cox <- coxph(surv_object ~ agediag, data = data)
 summary(agediag_cox)
-ggforest(agediag_cox, data = comb)
+ggforest(agediag_cox, data = data)
 
 summcph <- summary(agediag_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
@@ -143,18 +143,18 @@ cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]],
 
 
 #univariate cox regression on age group
-age_group_cox <- coxph(surv_object ~ age_group, data = comb)
+age_group_cox <- coxph(surv_object ~ age_group, data = data)
 summary(age_group_cox)
-ggforest(age_group_cox, data = comb)
+ggforest(age_group_cox, data = data)
 
 summcph <- summary(age_group_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
 
 
 #univariate cox regression on age group
-ptv75_cox <- coxph(surv_object ~ V5.Hart_en_AortaAsc, data = comb)
+ptv75_cox <- coxph(surv_object ~ V5.Hart_en_AortaAsc, data = data)
 summary(ptv75_cox)
-ggforest(ptv75_cox, data = comb)
+ggforest(ptv75_cox, data = data)
 
 summcph <- summary(ptv75_cox)
 cat(summcph$call$formula[[3]], ",", summcph$rsq[[1]], ",", summcph$logtest[[3]], ",", summcph$waldtest[[3]], ",", summcph$sctest[[3]],"\n")
@@ -175,12 +175,12 @@ dosimetric_list <- c('DOSEMEAN.PTV',  'DOSEMAX.PTV',  'DOSEMIN.PTV',  'DOSESTD.P
 result <- list()
 
 for (i in 1:length(dosimetric_list)){
-  print(temp_cox <- coxph(surv_object ~ get(dosimetric_list[i]), data=comb))
+  print(temp_cox <- coxph(surv_object ~ get(dosimetric_list[i]), data=data))
   print(result[[i]] <- temp_cox)
 }
 
 
-sink("output/correlation/cox/lungstereo_dicom_univariate-cox-regression_output-table.csv")
+sink("output/lungstereo_dicom_univariate-cox-regression_output-table.csv")
 cat("var,Rsquare,Likelihood ratio test,Wald test,Score (logrank) test\n")
 
 for (i in 1:length(result)){

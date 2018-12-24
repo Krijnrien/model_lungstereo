@@ -1,4 +1,5 @@
 library(dplyr)
+library(tidyr)
 
 # Load castor CSV
 castor <- read.csv("data/castor.csv", header=TRUE, dec=",")

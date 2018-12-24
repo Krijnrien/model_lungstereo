@@ -11,7 +11,7 @@ graphics.off # clear plots
 source("column-selection_stop-treatment.R") # Subset of all 302 patients who have complete Dicom data (no missing organ values, except 0 values)
 
 
-Hart_en_AortaAsc <- comb[, c("survivalstat", 'DOSEMEAN.Hart_en_AortaAsc',  'DOSEMAX.Hart_en_AortaAsc',  'DOSEMIN.Hart_en_AortaAsc',  'DOSESTD.Hart_en_AortaAsc', 'D2CC.Hart_en_AortaAsc',	'D2PRCT_INGY.Hart_en_AortaAsc',	'D98PRCT_INGY.Hart_en_AortaAsc',	'V95PRCT40_05_INPRCT.Hart_en_AortaAsc',	'V95PRCT43_6_INPRCT.Hart_en_AortaAsc',	'V95PRCT53_4_INPRCT.Hart_en_AortaAsc',
+Hart_en_AortaAsc <- data[, c("survivalstat", 'DOSEMEAN.Hart_en_AortaAsc',  'DOSEMAX.Hart_en_AortaAsc',  'DOSEMIN.Hart_en_AortaAsc',  'DOSESTD.Hart_en_AortaAsc', 'D2CC.Hart_en_AortaAsc',	'D2PRCT_INGY.Hart_en_AortaAsc',	'D98PRCT_INGY.Hart_en_AortaAsc',	'V95PRCT40_05_INPRCT.Hart_en_AortaAsc',	'V95PRCT43_6_INPRCT.Hart_en_AortaAsc',	'V95PRCT53_4_INPRCT.Hart_en_AortaAsc',
                              "V5.Hart_en_AortaAsc", "V10.Hart_en_AortaAsc", "V15.Hart_en_AortaAsc", "V20.Hart_en_AortaAsc", "V25.Hart_en_AortaAsc", "V30.Hart_en_AortaAsc", "V35.Hart_en_AortaAsc", "V40.Hart_en_AortaAsc", "V45.Hart_en_AortaAsc", "V50.Hart_en_AortaAsc", "V55.Hart_en_AortaAsc", "V60.Hart_en_AortaAsc")]
 Hart_en_AortaAsc[] <- lapply(Hart_en_AortaAsc, function(x) as.numeric(as.character(x)))
 Hart_en_AortaAsc <- Hart_en_AortaAsc %>% mutate_if(is.numeric, round, 0)

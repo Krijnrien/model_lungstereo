@@ -1,15 +1,4 @@
-#library(dplyr)
-#library(plyr)
-
-if(!exists("comb")){
-  cat("No comb object found in memory: running prepare.r script!\n")
-  source("clean.r")
-}
-
-# renaming dataframe
-data <- comb
-rm(comb)
-
+source("clean_data.r")
 
 # columns to drop
 drop = c('', 'X','RecordId_new','Institute.Abbreviation','Record.Creation.Date','BirthYear', 'diagdate', 'History', 'firstLStereo',
@@ -34,6 +23,8 @@ keep = c('sex', 'WHO', 'PA', 'origin', 'Schedule', 'FEV1', 'size', 'agediag', 'd
         'VOLUME.PTV',  'DOSEMEAN.PTV',  'DOSEMAX.PTV',  'DOSEMIN.PTV',  'DOSESTD.PTV',  'V5.PTV',  'V10.PTV',  'V15.PTV',  'V20.PTV',  'V25.PTV',  'V30.PTV',  'V35.PTV',  'V40.PTV',  'V45.PTV',  'V50.PTV',  'V55.PTV',  'V60.PTV',  'V65.PTV',  'V70.PTV',  'V75.PTV',  'D2CC.PTV',  'D2PRCT_INGY.PTV',  'D98PRCT_INGY.PTV',  'V95PRCT40_05_INPRCT.PTV',  'V95PRCT43_6_INPRCT.PTV',  'V95PRCT53_4_INPRCT.PTV',# dosimetric PTV
         'VOLUME.Longen',  'DOSEMEAN.Longen',  'DOSEMAX.Longen',  'DOSEMIN.Longen',  'DOSESTD.Longen',  'V5.Longen',  'V10.Longen',  'V15.Longen',  'V20.Longen',  'V25.Longen',  'V30.Longen',  'V35.Longen',  'V40.Longen',  'V45.Longen',  'V50.Longen',  'V55.Longen',  'V60.Longen',  'V65.Longen',  'V70.Longen',  'V75.Longen',  'D2CC.Longen',  'D2PRCT_INGY.Longen',  'D98PRCT_INGY.Longen',  'V95PRCT40_05_INPRCT.Longen',  'V95PRCT43_6_INPRCT.Longen',  'V95PRCT53_4_INPRCT.Longen', #dosimetric Lungs
         'VOLUME.Oes',  'DOSEMEAN.Oes',  'DOSEMAX.Oes',  'DOSEMIN.Oes',  'DOSESTD.Oes',  'V5.Oes',  'V10.Oes',  'V15.Oes',  'V20.Oes',  'V25.Oes',  'V30.Oes',  'V35.Oes',  'V40.Oes',  'V45.Oes',  'V50.Oes',  'V55.Oes',  'V60.Oes',  'V65.Oes',  'V70.Oes',  'V75.Oes',  'D2CC.Oes',  'D2PRCT_INGY.Oes',  'D98PRCT_INGY.Oes',  'V95PRCT40_05_INPRCT.Oes',  'V95PRCT43_6_INPRCT.Oes',  'V95PRCT53_4_INPRCT.Oes'#dosimetric oesophagus
-)
+       )
 data = data[, keep]
+
+rm(drop, keep)
 
