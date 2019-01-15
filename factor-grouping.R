@@ -8,6 +8,9 @@ source("column-selection_stop-treatment.R")
 
 data <- data %>% mutate(age_group = ifelse(agediag <=73, "age <= 73", "age > 73"))
 data <- data %>% mutate(fev1_group = ifelse(FEV1 <= 70, "FEV1 < 70", "FEV1 >= 70"))
+#data$fev1_div10 <- data$FEV1 / 10 # not relevant. logrank 0.19
+
+
 data$WHO <- ifelse(data$WHO == 3 , 2, data$WHO)
 # 1 adenoca, 2 squamous cell carcinoma, 3 carconima NOS, 4 sarcoma ,5 BAC, 6 other malignancy, 9 no PA/ proved malignancy
 data$PAstat <- ifelse(data$PA == 1 | data$PA == 2 | data$PA == 3 | data$PA == 4 | data$PA == 5 | data$PA == 6, 1, 2)
@@ -22,18 +25,25 @@ data$originstat[data$origin == 9] <- 2
 
 
 
+#data$survivalstat <- factor(data$survivalstat, levels = c(0, 1))
 data$Schedule <- factor(data$Schedule, levels = c("1", "2", "3", "4"), labels = c("3x18Gy", "5x11Gy", "8x7,5Gy", "12x5Gy"))
 #data$age_group <- factor(data$age_group)
 data$cT_stat <- factor(data$cT_stat, levels = c("1", "2", "3"), labels = c("t1", "t2", "t3"))
 data$cN_stat <- factor(data$cN_stat, levels = c("0", "1", "2", "3"), labels = c("n0", "n1", "n2", "n3"))
+
+#data$cN_stat <- factor(data$cN_stat)
+
 data$cM_stat <- factor(data$cM_stat, levels = c("0", "1"), labels = c("m0", "m1"))
-data$WHO <- factor(data$WHO, levels = c("0", "1", "2", "4", "5"), labels = c("asymptomatic", "symptomatic but completely ambulatory", "symptomatic", "bedbound", "death")) # 0 asymptomatic, 1 symptomatic but completely ambulatory, 2 symptomatic, 3 symptomatic, 4 bedbound, 5 death
+data$WHO <- factor(data$WHO, levels = c("0", "1", "2"), labels = c("asymptomatic", "symptomatic but completely ambulatory", "symptomatic")) # 0 asymptomatic, 1 symptomatic but completely ambulatory, 2 symptomatic, 3 symptomatic, 4 bedbound, 5 death
 data$fev1_group <- factor(data$fev1_group)
 data$age_group <- factor(data$age_group)
 data$PAstat <- factor(data$PAstat, levels = c("1", "2"), labels = c("PA", "No PA")) # 1 adenoca, 2 squamous cell carcinoma, 3 carconima NOS, 4 sarcoma ,5 BAC, 6 other malignancy, 9 no PA/ proved malignancy
 data$originstat <- factor(data$originstat, levels = c("1", "2"), labels = c("primair", "metastases"))
-data$size <- factor(data$size)
-data$aantal_doelgebieden <- factor(data$aantal_doelgebieden)
+
+data$sex <- factor(data$sex, levels = c("1", "2"), labels = c("male", "female"))
+
+#data$aantal_doelgebieden <- factor(data$aantal_doelgebieden)
+
 data$aantal_tumoren <- factor(data$aantal_tumoren)
 
 

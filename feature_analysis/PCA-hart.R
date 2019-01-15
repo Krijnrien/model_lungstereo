@@ -28,11 +28,11 @@ data.survival <- data[,c("survivalstat")]
 
 # All Longen variables (except mindose (no variance))
 all_keep = c('VOLUME.Hart_en_AortaAsc',  'DOSEMEAN.Hart_en_AortaAsc',  'DOSEMAX.Hart_en_AortaAsc',  'DOSEMIN.Hart_en_AortaAsc',  'DOSESTD.Hart_en_AortaAsc',  'V5.Hart_en_AortaAsc',  'V10.Hart_en_AortaAsc',  'V15.Hart_en_AortaAsc',  'V20.Hart_en_AortaAsc',  'V25.Hart_en_AortaAsc',  'V30.Hart_en_AortaAsc',  'V35.Hart_en_AortaAsc',  'V40.Hart_en_AortaAsc',  'V45.Hart_en_AortaAsc',  'V50.Hart_en_AortaAsc',  'V55.Hart_en_AortaAsc',  'V60.Hart_en_AortaAsc', 'D2CC.Hart_en_AortaAsc',  'D2PRCT_INGY.Hart_en_AortaAsc',  'D98PRCT_INGY.Hart_en_AortaAsc',  'V95PRCT40_05_INPRCT.Hart_en_AortaAsc',  'V95PRCT43_6_INPRCT.Hart_en_AortaAsc',  'V95PRCT53_4_INPRCT.Hart_en_AortaAsc') #dosimetric heart and aorta
-# after Cox 0.05 variables
-pca_keep = c('DOSEMEAN.Hart_en_AortaAsc',  'DOSESTD.Hart_en_AortaAsc',  'V15.Hart_en_AortaAsc',  'V20.Hart_en_AortaAsc',  'V25.Hart_en_AortaAsc',  'V30.Hart_en_AortaAsc',  'V35.Hart_en_AortaAsc',  'V40.Hart_en_AortaAsc',  'V45.Hart_en_AortaAsc',  'V50.Hart_en_AortaAsc', 'D2PRCT_INGY.Hart_en_AortaAsc', 'V95PRCT40_05_INPRCT.Hart_en_AortaAsc',  'V95PRCT43_6_INPRCT.Hart_en_AortaAsc',  'V95PRCT53_4_INPRCT.Hart_en_AortaAsc') #dosimetric heart and aorta
+#all_keep = c('VOLUME.Hart_en_AortaAsc',  'DOSEMEAN.Hart_en_AortaAsc',  'DOSEMAX.Hart_en_AortaAsc',  'DOSEMIN.Hart_en_AortaAsc',  'DOSESTD.Hart_en_AortaAsc',  'V5.Hart_en_AortaAsc',  'V10.Hart_en_AortaAsc',  'V15.Hart_en_AortaAsc',  'V20.Hart_en_AortaAsc',  'V25.Hart_en_AortaAsc',  'V30.Hart_en_AortaAsc',  'V35.Hart_en_AortaAsc',  'V40.Hart_en_AortaAsc',  'V45.Hart_en_AortaAsc',  'V50.Hart_en_AortaAsc',  'V55.Hart_en_AortaAsc',  'V60.Hart_en_AortaAsc', 'D2CC.Hart_en_AortaAsc') #dosimetric heart and aorta
+
 
 # After PCA
-#pca_keep = c('DOSEMEAN.Hart_en_AortaAsc',  'DOSEMAX.Hart_en_AortaAsc', 'D2CC.Hart_en_AortaAsc',	'D2PRCT_INGY.Hart_en_AortaAsc',	'D98PRCT_INGY.Hart_en_AortaAsc',	'V95PRCT40_05_INPRCT.Hart_en_AortaAsc',	'V95PRCT43_6_INPRCT.Hart_en_AortaAsc',	'V95PRCT53_4_INPRCT.Hart_en_AortaAsc', "V25.Hart_en_AortaAsc", "V30.Hart_en_AortaAsc", "V35.Hart_en_AortaAsc", "V40.Hart_en_AortaAsc", "V45.Hart_en_AortaAsc", "V50.Hart_en_AortaAsc", "V55.Hart_en_AortaAsc")
+pca_keep = c('DOSEMEAN.Hart_en_AortaAsc', 'DOSESTD.Hart_en_AortaAsc', 'V15.Hart_en_AortaAsc',  'V20.Hart_en_AortaAsc',  'V25.Hart_en_AortaAsc',  'V30.Hart_en_AortaAsc',  'V35.Hart_en_AortaAsc',  'V40.Hart_en_AortaAsc',  'V45.Hart_en_AortaAsc',  'V50.Hart_en_AortaAsc', 'D2PRCT_INGY.Hart_en_AortaAsc',  'V95PRCT40_05_INPRCT.Hart_en_AortaAsc',  'V95PRCT43_6_INPRCT.Hart_en_AortaAsc',  'V95PRCT53_4_INPRCT.Hart_en_AortaAsc') #dosimetric heart and aorta
 
 all_data = data[, all_keep]
 all_data <- plyr::rename(all_data, c("VOLUME.Hart_en_AortaAsc"="Hart_en_AortaAsc volume",
@@ -86,9 +86,13 @@ selection_pca_var <- fviz_pca_biplot(pca_data.pca, label="var", labelsize=2, col
 
 # NOTE: Rstudio plot view might not show all plots, click on Zoom!
 multiplot <- ggarrange(pca_var, dimensions_scree, var_contribution, selection_pca_var, ncol = 2, nrow = 2)
+
 p <- annotate_figure(multiplot,
                      top = text_grob("Hart_en_AortaAsc - Principal component analysis",face = "bold", size = 14),
                      bottom = text_grob("", hjust = 1, x = 1, face = "italic", size = 10)
 )
+
+png('output/lungestereo_hart_PCA.png', width=1920, height=1080)
 print(p)
+dev.off()
 

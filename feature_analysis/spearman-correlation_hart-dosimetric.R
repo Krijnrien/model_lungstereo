@@ -9,6 +9,13 @@ rm(list=ls()) #clear memory
 graphics.off # clear plots
 
 source("column-selection_stop-treatment.R") # Subset of all 302 patients who have complete Dicom data (no missing organ values, except 0 values)
+# preprocess functions
+source('impute_data.r')
+
+
+zero_variance_columns = remove_zero_variance_columns(data)
+varied_data <- zero_variance_columns
+data <- impute_data(varied_data)
 
 
 Hart_en_AortaAsc <- data[, c("survivalstat", 'DOSEMEAN.Hart_en_AortaAsc',  'DOSEMAX.Hart_en_AortaAsc',  'DOSEMIN.Hart_en_AortaAsc',  'DOSESTD.Hart_en_AortaAsc', 'D2CC.Hart_en_AortaAsc',	'D2PRCT_INGY.Hart_en_AortaAsc',	'D98PRCT_INGY.Hart_en_AortaAsc',	'V95PRCT40_05_INPRCT.Hart_en_AortaAsc',	'V95PRCT43_6_INPRCT.Hart_en_AortaAsc',	'V95PRCT53_4_INPRCT.Hart_en_AortaAsc',

@@ -29,7 +29,6 @@ data.survival <- data[,c("survivalstat")]
 # All Oes variables (except v70, and v75 (no variance))
 all_keep = c('VOLUME.Oes',  'DOSEMEAN.Oes',  'DOSEMAX.Oes',  'DOSEMIN.Oes',  'DOSESTD.Oes',  'V5.Oes',  'V10.Oes',  'V15.Oes',  'V20.Oes',  'V25.Oes',  'V30.Oes',  'V35.Oes',  'V40.Oes',  'V45.Oes',  'V50.Oes',  'V55.Oes',  'V60.Oes',  'V65.Oes',  'D2CC.Oes',  'D2PRCT_INGY.Oes',  'D98PRCT_INGY.Oes',  'V95PRCT40_05_INPRCT.Oes',  'V95PRCT43_6_INPRCT.Oes',  'V95PRCT53_4_INPRCT.Oes')
 
-# after Cox 0.05 variables
 pca_keep = c('DOSEMEAN.Oes', 'DOSESTD.Oes',  'V25.Oes',  'V30.Oes',  'V35.Oes',  'V40.Oes',  'V45.Oes',  'V50.Oes',  'V55.Oes', 'D2CC.Oes',  'D2PRCT_INGY.Oes', 'V95PRCT40_05_INPRCT.Oes',  'V95PRCT43_6_INPRCT.Oes',  'V95PRCT53_4_INPRCT.Oes')
 
 # After PCA
@@ -40,6 +39,7 @@ all_data <- plyr::rename(all_data, c("VOLUME.Oes"="oes volume",
                                      "DOSEMEAN.Oes"="mean dose", 
                                      "DOSEMAX.Oes"="max dose", 
                                      "DOSEMIN.Oes"="min dose",
+                                     "D2CC.Oes"="D2CC",
                                      "DOSESTD.Oes"="std dose",
                                      "D2PRCT_INGY.Oes"="D2PRCT_INGY",
                                      "D98PRCT_INGY.Oes"="D98PRCT_INGY",
@@ -93,5 +93,10 @@ p <- annotate_figure(multiplot,
                      top = text_grob("Oes - Principal component analysis",face = "bold", size = 14),
                      bottom = text_grob("", hjust = 1, x = 1, face = "italic", size = 10)
 )
+
+
+png('output/lungestereo_oes_PCA.png', width=1920, height=1080)
 print(p)
+dev.off()
+
 

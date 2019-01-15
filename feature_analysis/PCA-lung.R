@@ -29,7 +29,6 @@ data.survival <- data[,c("survivalstat")]
 # All Longen variables (except mindose (no variance))
 all_keep = c('VOLUME.Longen',  'DOSEMEAN.Longen',  'DOSEMAX.Longen', 'DOSESTD.Longen',  'V5.Longen',  'V10.Longen',  'V15.Longen',  'V20.Longen',  'V25.Longen',  'V30.Longen',  'V35.Longen',  'V40.Longen',  'V45.Longen',  'V50.Longen',  'V55.Longen',  'V60.Longen',  'V65.Longen',  'D2CC.Longen',  'D2PRCT_INGY.Longen',  'D98PRCT_INGY.Longen',  'V95PRCT40_05_INPRCT.Longen',  'V95PRCT43_6_INPRCT.Longen',  'V95PRCT53_4_INPRCT.Longen')
 
-# after Cox 0.05 variables
 pca_keep = c('DOSEMEAN.Longen', 'DOSESTD.Longen', 'V15.Longen',  'V20.Longen',  'V25.Longen',  'V30.Longen',  'V35.Longen',  'V40.Longen',  'V45.Longen',  'V50.Longen',  'V55.Longen', 'D2PRCT_INGY.Longen',  'V95PRCT40_05_INPRCT.Longen',  'V95PRCT43_6_INPRCT.Longen',  'V95PRCT53_4_INPRCT.Longen')
 
 # After PCA
@@ -93,5 +92,7 @@ p <- annotate_figure(multiplot,
                      top = text_grob("Longen - Principal component analysis",face = "bold", size = 14),
                      bottom = text_grob("", hjust = 1, x = 1, face = "italic", size = 10)
 )
+png('output/lungestereo_lung_PCA.png', width=1920, height=1080)
 print(p)
+dev.off()
 

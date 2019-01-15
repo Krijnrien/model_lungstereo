@@ -9,9 +9,16 @@ rm(list=ls()) #clear memory
 graphics.off # clear plots
 
 source("column-selection_stop-treatment.R") # Subset of all 302 patients who have complete Dicom data (no missing organ values, except 0 values)
+# preprocess functions
+source('impute_data.r')
 
 
-Longen <- comb[, c("survivalstat", 'DOSEMEAN.Longen',  'DOSEMAX.Longen', 'DOSESTD.Longen', 'D2CC.Longen',	'D2PRCT_INGY.Longen',	'D98PRCT_INGY.Longen',	'V95PRCT40_05_INPRCT.Longen',	'V95PRCT43_6_INPRCT.Longen',	'V95PRCT53_4_INPRCT.Longen',
+zero_variance_columns = remove_zero_variance_columns(data)
+varied_data <- zero_variance_columns
+data <- impute_data(varied_data)
+
+
+Longen <- data[, c("survivalstat", 'DOSEMEAN.Longen',  'DOSEMAX.Longen', 'DOSESTD.Longen', 'D2CC.Longen',	'D2PRCT_INGY.Longen',	'D98PRCT_INGY.Longen',	'V95PRCT40_05_INPRCT.Longen',	'V95PRCT43_6_INPRCT.Longen',	'V95PRCT53_4_INPRCT.Longen',
                    "V5.Longen", "V10.Longen", "V15.Longen", "V20.Longen", "V25.Longen", "V30.Longen", "V35.Longen", "V40.Longen", "V45.Longen", "V50.Longen", "V55.Longen", "V60.Longen", "V65.Longen", "V70.Longen", "V75.Longen")]
 Longen[] <- lapply(Longen, function(x) as.numeric(as.character(x)))
 Longen <- Longen %>% mutate_if(is.numeric, round, 0)

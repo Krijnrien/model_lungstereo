@@ -62,5 +62,7 @@ p <- annotate_figure(multiplot,
                      top = text_grob("All-dosimetric - Principal component analysis",face = "bold", size = 14),
                      bottom = text_grob("", hjust = 1, x = 1, face = "italic", size = 10)
 )
+png('output/lungestereo_all-dosimetric_PCA.png', width=1920, height=1080)
 print(p)
+dev.off()
 

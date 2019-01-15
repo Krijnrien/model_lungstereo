@@ -1,6 +1,5 @@
 library(imputeMissings)
 
-
 impute_data <- function(data){
   # This function imputes missing values on all data using train data information,
   # uses medians for continuous variables and modes for categorical variables.
@@ -17,7 +16,7 @@ impute_data <- function(data){
 
 remove_zero_variance_columns <- function(data){
   # This function removes zero variance columns in all data based on train data.
-  
+
   columnsToKeep_levels = sapply(data, function(col) length(unique(col))) # count unique (including NA) entries per column in the train data
   columnsToKeep_nas = sapply(data, function(col) any(is.na(unique(col)))) # check if at least one NA is present per column in the train data
   columnsToKeep_levels[columnsToKeep_nas] = columnsToKeep_levels[columnsToKeep_nas]-1 # count unique (excluding NA) entries per column in the train data

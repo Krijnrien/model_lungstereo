@@ -9,9 +9,16 @@ rm(list=ls()) #clear memory
 graphics.off # clear plots
 
 source("column-selection_stop-treatment.R") # Subset of all 302 patients who have complete Dicom data (no missing organ values, except 0 values)
+# preprocess functions
+source('impute_data.r')
 
 
-Oes <- comb[, c("survivalstat", 'DOSEMEAN.Oes',  'DOSEMAX.Oes',  'DOSEMIN.Oes',  'DOSESTD.Oes', 'D2CC.Oes',	'D2PRCT_INGY.Oes',	'D98PRCT_INGY.Oes',	'V95PRCT40_05_INPRCT.Oes',	'V95PRCT43_6_INPRCT.Oes',	'V95PRCT53_4_INPRCT.Oes',
+zero_variance_columns = remove_zero_variance_columns(data)
+varied_data <- zero_variance_columns
+data <- impute_data(varied_data)
+
+
+Oes <- data[, c("survivalstat", 'DOSEMEAN.Oes',  'DOSEMAX.Oes',  'DOSEMIN.Oes',  'DOSESTD.Oes', 'D2CC.Oes',	'D2PRCT_INGY.Oes',	'D98PRCT_INGY.Oes',	'V95PRCT40_05_INPRCT.Oes',	'V95PRCT43_6_INPRCT.Oes',	'V95PRCT53_4_INPRCT.Oes',
                 "V5.Oes", "V10.Oes", "V15.Oes", "V20.Oes", "V25.Oes", "V30.Oes", "V35.Oes", "V40.Oes", "V45.Oes", "V50.Oes", "V55.Oes", "V60.Oes")]
 Oes[] <- lapply(Oes, function(x) as.numeric(as.character(x)))
 Oes <- Oes %>% mutate_if(is.numeric, round, 0)

@@ -3,32 +3,23 @@
 
 library(dplyr)
 library(plyr)
-library(svDialogs)
-library(ResourceSelection)
 library(caret)
-#library(randomForest)
-#library(glmnet)
-#library(nnet)
 library(ggplot2)
+library(ResourceSelection)
 library(imputeMissings)
+library(rlist)
+library(pROC)
 
-cat("\014") # clear the console
-rm(list = ls()) # clear workspace/environment (all variables and functions)
-graphics.off() # clear current plots
-
-# load data
-source("ML-preparation_stop-treatment.r")
-data_class = data$survivalstat # place outcome in separate variable
-data$survivalstat = NULL #remove outcome from data
-data_class = revalue(data_class, c('0' = 'nonEvent','1' = 'event')) # relabel outcome as event and nonEvent: 0:dead before 2yr --> nonEvent, 1:alive after 2yr --> event
-data <- list(data,data_class) 
+cat("\014") #clear console
+rm(list=ls()) #clear memory
+graphics.off # clear plots
 
 
 cat(sprintf('[%s]\n', format(Sys.time(), '%Y-%m-%d %H:%M:%S')))
 startTime_simulation = Sys.time()
 timeLabel = format(Sys.time(), '%Y%m%d_%H%M%S')
 
-options(warn = 1) # show each warning when it happens
+options(warn = 1) # show each warning when it happensno
 options(nwarnings = 10000) # allow many warnings to be saved
 options(show.error.locations = TRUE) # show code line numbers of errors
 
@@ -42,11 +33,60 @@ kOuter <- 5		# defining the number of folds used in the outer CV
 kInner = 5		# defining the number of folds used in the parameter tuning CV
 
 
-#classifierSelection = c('rf', 'glmnet', 'nnet')
-classifierSelection = c('rf')
+classifierSelection = 'glm'
 
 pathToOutputSubFolder = file.path('Output', timeLabel) # output location for models
 dir.create(pathToOutputSubFolder)
+
+
+
+# load data
+#source("column-selection_stop-treatment.r")
+source("factor-grouping.r")
+
+
+data$survivalstat <- ifelse(data$diff_in_days > 730, 0, data$survivalstat)
+#data$survivalstat <- ifelse(data$diff_in_days > 365, 0, data$survivalstat)
+
+data$survivalstat <- factor(data$survivalstat, levels = c(0, 1))
+#data <- upSample(x = data,y = data$survivalstat)
+data <- downSample(x = data,y = data$survivalstat)
+
+# all
+# keep = c('sex', 'WHO', 'PA', 'origin', 'Schedule', 'FEV1', 'size', 'agediag', #Castor (without toxicity)
+#          'aantal_tumoren',	'aantal_doelgebieden', 'volgnummer_tumor',	'volgnummer_doelgebied',	'volgnummer_radiotherapie', 'code_localisatie_doelgebied', 'opzet_radiotherapie',	'indicatie_bestraling', 'location_stat', 'cT_stat', 'cN_stat', 'cM_stat', 'survivalstat','cum_dosis_specificatie', #RTHWEB
+#          'VOLUME.Hart_en_AortaAsc',  'DOSEMEAN.Hart_en_AortaAsc',  'DOSEMAX.Hart_en_AortaAsc',  'DOSEMIN.Hart_en_AortaAsc',  'DOSESTD.Hart_en_AortaAsc',  'V5.Hart_en_AortaAsc',  'V10.Hart_en_AortaAsc',  'V15.Hart_en_AortaAsc',  'V20.Hart_en_AortaAsc',  'V25.Hart_en_AortaAsc',  'V30.Hart_en_AortaAsc',  'V35.Hart_en_AortaAsc',  'V40.Hart_en_AortaAsc',  'V45.Hart_en_AortaAsc',  'V50.Hart_en_AortaAsc',  'V55.Hart_en_AortaAsc',  'V60.Hart_en_AortaAsc',  'V65.Hart_en_AortaAsc',  'V70.Hart_en_AortaAsc',  'V75.Hart_en_AortaAsc',  'D2CC.Hart_en_AortaAsc',  'D2PRCT_INGY.Hart_en_AortaAsc',  'D98PRCT_INGY.Hart_en_AortaAsc',  'V95PRCT40_05_INPRCT.Hart_en_AortaAsc',  'V95PRCT43_6_INPRCT.Hart_en_AortaAsc',  'V95PRCT53_4_INPRCT.Hart_en_AortaAsc', #dosimetric heart and aorta
+#          'VOLUME.PTV',  'DOSEMEAN.PTV',  'DOSEMAX.PTV',  'DOSEMIN.PTV',  'DOSESTD.PTV',  'V5.PTV',  'V10.PTV',  'V15.PTV',  'V20.PTV',  'V25.PTV',  'V30.PTV',  'V35.PTV',  'V40.PTV',  'V45.PTV',  'V50.PTV',  'V55.PTV',  'V60.PTV',  'V65.PTV',  'V70.PTV',  'V75.PTV',  'D2CC.PTV',  'D2PRCT_INGY.PTV',  'D98PRCT_INGY.PTV',  'V95PRCT40_05_INPRCT.PTV',  'V95PRCT43_6_INPRCT.PTV',  'V95PRCT53_4_INPRCT.PTV',# dosimetric PTV
+#          'VOLUME.Longen',  'DOSEMEAN.Longen',  'DOSEMAX.Longen',  'DOSEMIN.Longen',  'DOSESTD.Longen',  'V5.Longen',  'V10.Longen',  'V15.Longen',  'V20.Longen',  'V25.Longen',  'V30.Longen',  'V35.Longen',  'V40.Longen',  'V45.Longen',  'V50.Longen',  'V55.Longen',  'V60.Longen',  'V65.Longen',  'V70.Longen',  'V75.Longen',  'D2CC.Longen',  'D2PRCT_INGY.Longen',  'D98PRCT_INGY.Longen',  'V95PRCT40_05_INPRCT.Longen',  'V95PRCT43_6_INPRCT.Longen',  'V95PRCT53_4_INPRCT.Longen', #dosimetric Lungs
+#          'VOLUME.Oes',  'DOSEMEAN.Oes',  'DOSEMAX.Oes',  'DOSEMIN.Oes',  'DOSESTD.Oes',  'V5.Oes',  'V10.Oes',  'V15.Oes',  'V20.Oes',  'V25.Oes',  'V30.Oes',  'V35.Oes',  'V40.Oes',  'V45.Oes',  'V50.Oes',  'V55.Oes',  'V60.Oes',  'V65.Oes',  'V70.Oes',  'V75.Oes',  'D2CC.Oes',  'D2PRCT_INGY.Oes',  'D98PRCT_INGY.Oes',  'V95PRCT40_05_INPRCT.Oes',  'V95PRCT43_6_INPRCT.Oes',  'V95PRCT53_4_INPRCT.Oes'#dosimetric oesophagus
+# )
+#keep = c('survivalstat', 'WHO', 'sex', 'V65.Oes', 'DOSEMEAN.PTV', 'DOSEMAX.PTV', 'DOSESTD.PTV', 'D2CC.PTV', 'D2PRCT_INGY.PTV', 'V10.PTV', 'V20.PTV', 'V65.PTV', 'DOSEMAX.Longen', 'DOSEMIN.Oes', 'V25.Oes', 'V30.Oes', 'V35.Oes')
+
+#keep = c('survivalstat', 'WHO', 'sex', 'V65.Oes','DOSEMEAN.PTV', 'DOSEMAX.PTV', 'DOSESTD.PTV', 'D2CC.PTV', 'D2PRCT_INGY.PTV', 'V10.PTV', 'V20.PTV', 'V65.PTV', 'DOSEMAX.Longen', 'DOSEMIN.Oes', 'V25.Oes', 'V30.Oes', 'V35.Oes')
+
+#keep = c('survivalstat', 'WHO', 'sex', 'DOSESTD.PTV')
+
+
+#keep = c('survivalstat', 'WHO', 'sex')
+
+
+#keep = c('sex', 'WHO', 'age_group','survivalstat')
+data = data[, keep]
+
+sink(file.path(pathToOutputSubFolder, "used_columns_in_model.txt"))
+print(keep)
+sink()
+
+rm(keep)
+
+
+
+
+data_class = data$survivalstat # place outcome in separate variable
+data$survivalstat = NULL #remove outcome from data
+data_class = revalue(data_class, c('0' = 'nonEvent','1' = 'event')) # relabel outcome as event and nonEvent: 0:dead before 2yr --> nonEvent, 1:alive after 2yr --> event
+data <- list(data,data_class) 
+
 
 
 preprocess_dataset <- function(data,data_class,outerFolds,kOuter){
@@ -57,9 +97,9 @@ preprocess_dataset <- function(data,data_class,outerFolds,kOuter){
   
   # initalize all fold-related variables
   trainFoldLabels = trainIndicesOuter = testIndicesOuter = trainDataOuter =trainDummiedDataOuter = trainClassOuter = testDataOuter = testDummiedDataOuter = testClassOuter = trainDataOuter_preImputation = imputedData = dummiedImputedData = dummies = list() 
-
+  
   # remove zero variance columns otherwise dummy coding might fail. Second input is rendundant (improve in net version)
-  firstZeroVarianceRemovalOutput = preprocess_removeZeroVarianceColumns(data,data)
+  firstZeroVarianceRemovalOutput = remove_zero_variance_columns(data,data)
   data = firstZeroVarianceRemovalOutput[[1]]
   
   # create variables containing indices for folds, create data frames containing the training and test data 
@@ -71,7 +111,7 @@ preprocess_dataset <- function(data,data_class,outerFolds,kOuter){
     
     trainDataOuter_preImputation[[i_kOuter]] = data[trainIndicesOuter[[i_kOuter]],] # list of data frames containing the training data slice before it is imputed
     
-    imputedData[[i_kOuter]] = preprocess_imputeDataset(trainDataOuter_preImputation[[i_kOuter]], data) # run imputation on all data using imputed values from the training slice
+    imputedData[[i_kOuter]] = impute_data(trainDataOuter_preImputation[[i_kOuter]], data) # run imputation on all data using imputed values from the training slice
     
     # dummy code all factors for the imputed data
     dummies[[i_kOuter]] = dummyVars(' ~.', data = imputedData[[i_kOuter]], fullRank = TRUE) 
@@ -87,11 +127,11 @@ preprocess_dataset <- function(data,data_class,outerFolds,kOuter){
     testDummiedDataOuter[[i_kOuter]] = dummiedImputedData[[i_kOuter]][testIndicesOuter[[i_kOuter]],] # list of data frames containing the test data slice after imputation
     testClassOuter[[i_kOuter]] = data_class[testIndicesOuter[[i_kOuter]]] # list of logical vectors containing the classes for the test data slice
     
-    zeroVarianceRemovalOutput = preprocess_removeZeroVarianceColumns(trainDataOuter[[i_kOuter]],testDataOuter[[i_kOuter]])
+    zeroVarianceRemovalOutput = remove_zero_variance_columns(trainDataOuter[[i_kOuter]],testDataOuter[[i_kOuter]])
     trainDataOuter[[i_kOuter]] = zeroVarianceRemovalOutput[[1]]
     testDataOuter[[i_kOuter]] = zeroVarianceRemovalOutput[[2]]
     
-    zeroVarianceRemovalOutput = preprocess_removeZeroVarianceColumns(trainDummiedDataOuter[[i_kOuter]],testDummiedDataOuter[[i_kOuter]])
+    zeroVarianceRemovalOutput = remove_zero_variance_columns(trainDummiedDataOuter[[i_kOuter]],testDummiedDataOuter[[i_kOuter]])
     trainDummiedDataOuter[[i_kOuter]] = zeroVarianceRemovalOutput[[1]]
     testDummiedDataOuter[[i_kOuter]] = zeroVarianceRemovalOutput[[2]]
     
@@ -106,7 +146,7 @@ preprocess_dataset <- function(data,data_class,outerFolds,kOuter){
   }  
   return(list(trainDataOuter,testDataOuter,trainDummiedDataOuter,testDummiedDataOuter,trainClassOuter,testClassOuter))
 }
-preprocess_imputeDataset <- function(trainData,fullData){
+impute_data <- function(trainData,fullData){
   # This function imputes missing values on all data using train data information,
   # uses medians for continuous variables and modes for categorical variables.
   #only impute if there is any missing value in the full dataset
@@ -119,7 +159,7 @@ preprocess_imputeDataset <- function(trainData,fullData){
   
   return(imputedFullData)
 }
-preprocess_removeZeroVarianceColumns <- function(trainData,testData){
+remove_zero_variance_columns <- function(trainData,testData){
   # This function removes zero variance columns in all data based on train data.
   
   columnsToKeep_levels = sapply(trainData, function(col) length(unique(col))) # count unique (including NA) entries per column in the train data
@@ -131,7 +171,9 @@ preprocess_removeZeroVarianceColumns <- function(trainData,testData){
   return(list(newTrainData,newTestData))
 }
 
-runClassifier <- function(classifierName,trainData,trainClass,testData,testClass,kInner,defaultTuning,seed){
+
+
+runClassifier <- function(trainData,trainClass,testData,testClass,kInner,defaultTuning,seed, i_kOuter,i_rep){
   # This function fits one classifier on the current training set using a kInner-fold inner CV (using caret),
   # hyperparameters are tuned in the inner CV,
   # evaluates the model on the test set,
@@ -139,12 +181,10 @@ runClassifier <- function(classifierName,trainData,trainClass,testData,testClass
   
   # set fitControl for all classifiers.
   fitControl = trainControl( method = 'cv', number = kInner, classProbs = TRUE, allowParallel = FALSE, summaryFunction = twoClassSummary, verboseIter = FALSE)
+  tuneGrid <- expand.grid(alpha = 0:1, lambda = seq(0.0001, 1, length = 100))
   
-  # given the classifierName, fit the correct model
-  modelFit = switch(classifierName,
-                    rf = fitRf(trainData,trainClass,seed,fitControl,defaultTuning),
-                    nnet = fitNnet(trainData,trainClass,seed,fitControl,defaultTuning),
-                    glmnet = fitGlmnet(trainData,trainClass,seed,fitControl,defaultTuning))  
+  
+  modelFit <- train(x = trainData, y = trainClass, method = 'glm', maxit = 1000000, trControl = fitControl, metric = 'ROC')
   # retrieve the highest AUC achieved by a hyperparameter-combination in the inner-CV. This should be by the model selected by the inner-CV.
   innerCvAuc = max(modelFit$results$ROC)
   
@@ -159,6 +199,31 @@ runClassifier <- function(classifierName,trainData,trainClass,testData,testClass
     stop('NA in pred found')
   }
   
+  predResult <- testDf
+  predResult["nonEvent"] <- NULL
+  predResult["pred"] <- NULL
+  predResult["obs"] <- ifelse(testDf$obs == 'event',1,0)
+
+  obs_pred_label = paste(timeLabel,'_TEST_observed-pred_i-rep','-',toString(i_rep), 'k_outer','-',toString(i_kOuter), sep = '')
+  write.csv(predResult, file = file.path(pathToOutputSubFolder, paste(obs_pred_label,'.csv',sep = '')))
+
+  # get AUCs via caret::twoClassSummary
+  trainDf = as.data.frame(predict(modelFit,newdata = trainData, type = 'prob')) # create data frame with probabilities for 'event' and 'nonEvent'
+  # NOTE: the columns 'event' and 'nonEvent' in trainDf are probabilities for those classes! Names cannot be changed because these names are required by twoClassSummary()
+  trainDf$obs = trainClass # assign the true train classes as observations
+  trainDf$pred = predict(modelFit,newdata = trainData) # assign predictions (event or nonEvent) as pred (they are either event or nonEvent). Uses 0.5-cutoff
+  
+  
+  predResult <- trainDf
+  predResult["nonEvent"] <- NULL
+  predResult["pred"] <- NULL
+  predResult["obs"] <- ifelse(trainDf$obs == 'event',1,0)
+  
+  obs_pred_label = paste(timeLabel,'train_observed-pred','-',toString(i_rep), 'k_outer','-',toString(i_kOuter), sep = '')
+  write.csv(predResult, file = file.path(pathToOutputSubFolder, paste(obs_pred_label,'.csv',sep = '')))
+  
+  flush.console()
+
   # compute auc
   testPerformance = twoClassSummary(data = testDf,lev = levels(testDf$obs), model = modelFit$method) # compute statistics for test set
   auc = testPerformance[1]
@@ -196,9 +261,11 @@ runCvForClassifiers <- function(data,data_class,kOuter,kInner,classifierNames,de
   
   # initalize modelFitList
   modelFitList = list(length = length(classifierNames))
+  varImportance = list(length = length(classifierNames))
   for (i_classifierNames in 1:length(classifierNames)){
     # initialize modelFitList which is a list of lists. One list for each classifier, each contains one entry for each fold.
     modelFitList[[i_classifierNames]] = list(length = kOuter)
+    varImportance = list(length = kOuter)
   }
   
   # initialize outputTable
@@ -223,51 +290,32 @@ runCvForClassifiers <- function(data,data_class,kOuter,kInner,classifierNames,de
     cat(sprintf('\tOuter fold %d/%d\t\t\t\t\t\t\t\t prevalence=%g%%\t (%d/%d)\n', i_kOuter, kOuter, round(100*sum(trainClassOuter[[i_kOuter]] == 'event')/length(trainClassOuter[[i_kOuter]])), sum(trainClassOuter[[i_kOuter]] == 'event'), length(trainClassOuter[[i_kOuter]]))) # DEBUG
     
     # loop over each classifier
-    for (i_classifierNames in 1:length(classifierNames)){
-      # print current classifier to be run (newline is printed after AUC inside the runCLassifier function)
-      cat(sprintf('\t\tClassifier %d/%d\t %-10s\t', i_classifierNames, length(classifierNames), classifierNames[i_classifierNames]))
-      
-      # use dummied data for some classifiers
-      if (!is.na(match(classifierNames[i_classifierNames],c('da','svm','pls','glmnet','glmnet_h2o','enet','plr','LogitBoost','knn')))){
-        # for glmnet check for near-zero variance columns
-        if(classifierNames[i_classifierNames] == 'glmnet'){
-          trainDummiedNonNearZeroVarianceDataOuter = trainDummiedDataOuter[[i_kOuter]]
-          testDummiedNonNearZeroVarianceDataOuter = testDummiedDataOuter[[i_kOuter]]
-          toRemove = nearZeroVar(trainDummiedNonNearZeroVarianceDataOuter)
-          
-          # if there are near-zero variance variables, remove them from train and test data
-          if (length(toRemove)>0) {
-            trainDummiedNonNearZeroVarianceDataOuter = trainDummiedNonNearZeroVarianceDataOuter[,-toRemove]
-            testDummiedNonNearZeroVarianceDataOuter = testDummiedNonNearZeroVarianceDataOuter[,-toRemove]  
-          }
-          
-          runClassifierOutput = runClassifier(classifierNames[i_classifierNames],trainDummiedNonNearZeroVarianceDataOuter,trainClassOuter[[i_kOuter]],testDummiedNonNearZeroVarianceDataOuter,testClassOuter[[i_kOuter]],kInner,defaultTuning,seed)
-        } else{
-          runClassifierOutput = runClassifier(classifierNames[i_classifierNames],trainDummiedDataOuter[[i_kOuter]],trainClassOuter[[i_kOuter]],testDummiedDataOuter[[i_kOuter]],testClassOuter[[i_kOuter]],kInner,defaultTuning,seed)
-        }        
-      } else{
-        runClassifierOutput = runClassifier(classifierNames[i_classifierNames],trainDataOuter[[i_kOuter]],trainClassOuter[[i_kOuter]],testDataOuter[[i_kOuter]],testClassOuter[[i_kOuter]],kInner,defaultTuning,seed)  
-      }
-      newRow = runClassifierOutput[[1]]
-      newRow['classifier'] = classifierNames[i_classifierNames] # add classifier string to new result
-      newRow['outerFold'] = i_kOuter # add outer fold number to new result
-      outputTable = rbind(outputTable, newRow) # attach new result to outputTable
-      modelFitList[[i_classifierNames]][[i_kOuter]]= runClassifierOutput[[2]] # store fitted model for current dataset/rep combination: store the fitted model for fold i_kOuter in the list for classifier i_classifierNames (in the i_kOuter-th position in the i_classifierNames-th list)
+    # print current classifier to be run (newline is printed after AUC inside the runCLassifier function)
+    cat(sprintf('\t\tClassifier \t %-10s\t', classifierNames[i_classifierNames]))
+    
+    # for glm check for near-zero variance columns
+    trainDummiedNonNearZeroVarianceDataOuter = trainDummiedDataOuter[[i_kOuter]]
+    testDummiedNonNearZeroVarianceDataOuter = testDummiedDataOuter[[i_kOuter]]
+    toRemove = nearZeroVar(trainDummiedNonNearZeroVarianceDataOuter)
+    
+    # if there are near-zero variance variables, remove them from train and test data
+    if (length(toRemove)>0) {
+      trainDummiedNonNearZeroVarianceDataOuter = trainDummiedNonNearZeroVarianceDataOuter[,-toRemove]
+      testDummiedNonNearZeroVarianceDataOuter = testDummiedNonNearZeroVarianceDataOuter[,-toRemove]  
     }
+    
+    runClassifierOutput = runClassifier(trainDummiedNonNearZeroVarianceDataOuter,trainClassOuter[[i_kOuter]],testDummiedNonNearZeroVarianceDataOuter,testClassOuter[[i_kOuter]],kInner,defaultTuning,seed, i_kOuter, i_rep)
+    
+    newRow = runClassifierOutput[[1]]
+    newRow['outerFold'] = i_kOuter # add outer fold number to new result
+    outputTable = rbind(outputTable, newRow) # attach new result to outputTable
+    modelFitList[[i_classifierNames]][[i_kOuter]]= runClassifierOutput[[2]] # store fitted model for current dataset/rep combination: store the fitted model for fold i_kOuter in the list for classifier i_classifierNames (in the i_kOuter-th position in the i_classifierNames-th list)
+    
+    imp <- varImp(runClassifierOutput[[2]])$importance
+    varimp_kouter = paste(timeLabel,'_variable-importance_k_rep','-',toString(i_rep), 'k_outer','-',toString(i_kOuter), sep = '')
+    write.csv(imp, file = file.path(pathToOutputSubFolder, paste(varimp_kouter,'.csv',sep = '')))
   }
-  return(list(outputTable,modelFitList))
-}
-
-fitGlmnet <- function(trainData,trainClass,seed,fitControl,defaultTuning){
-  modelFit <- train(x = trainData, y = trainClass, method = 'glmnet' , trControl = fitControl, metric = 'ROC')
-}
-fitRf <- function(trainData,trainClass,seed,fitControl,defaultTuning){
-  modelFit <- train(x = trainData, y = trainClass, method = 'rf', keep.forest=TRUE, trControl = fitControl, metric = 'ROC')
-  return(modelFit)
-}
-fitNnet <- function(trainData,trainClass,seed,fitControl,defaultTuning){
-  modelFit <- train(x = trainData, y = trainClass, method = 'nnet', MaxNWts = 8000, trControl = fitControl, metric = 'ROC', trace = FALSE) # added trace = FALSE to suppress console output
-  return(modelFit)
+  return(list(outputTable,modelFitList, varImportance))
 }
 
 cat(sprintf('Running classifiers on dataset...\n'))
@@ -283,16 +331,16 @@ for (i_rep in minRep:maxRep) {
   newRows = analysisOutput[[1]] # clumsy way of storing function output in separate variables
   newRows['rep'] = i_rep # add repetition number to new result
   outputTable = rbind(outputTable,newRows) # append new result to outputTable
-  currentModelFits =  analysisOutput[[2]] # clumsy way of storing function output in separate variables
+  #currentModelFits =  rbind(currentModelFits, analysisOutput[[2]]) # clumsy way of storing function output in separate variables
   
   # save current modelFits
   outputFilename = paste(timeLabel,'_model_fits',toString(i_rep),'_dataset',"lungstereo", sep = '')
-  save(list = 'currentModelFits', file = file.path(pathToOutputSubFolder, paste(outputFilename,'.RData',sep = '')))
-  
+  #save(list = 'currentModelFits', file = file.path(pathToOutputSubFolder, paste(outputFilename,'.RData',sep = '')))
   # save outputTable to csv for each repetition
   outputFilenameOutputTable = paste(timeLabel,'_models_output_table_rep','-',toString(i_rep), sep = '')
-  write.csv(outputTable, file = file.path(pathToOutputSubFolder, paste(outputFilenameOutputTable,'.csv',sep = '')))
 }
+
+write.csv(outputTable, file = file.path(pathToOutputSubFolder, paste(outputFilenameOutputTable,'.csv',sep = '')))
 
 
 # display running time
